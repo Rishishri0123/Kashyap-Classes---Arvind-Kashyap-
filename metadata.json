@@ -1,0 +1,6 @@
+{
+  "name": "Kashyap Classes - Premier Physics by Arvind Kashyap",
+  "description": "Premier Physics coaching for Class 11, Class 12, JEE (Main & Advanced), and NEET by Arvind Kashyap (Kashyap Sir). Features course schedules, student testimonials, and easy enrollment inquiries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
