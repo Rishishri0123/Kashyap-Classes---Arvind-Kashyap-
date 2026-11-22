@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
-import { Send, CheckCircle2, Phone, MessageSquare, AlertCircle, Download, Check, FileText } from 'lucide-react';
+import { Send, CheckCircle2, Phone, MessageSquare, AlertCircle, Download, Check, FileText, Lock, Unlock } from 'lucide-react';
 import { generateAndDownloadBrochure } from '../utils/brochureDownload';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 interface EnrollmentSectionProps {
   initialCourse?: string;
 }
 
 export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCourse = '' }) => {
-  const phoneNumber = '+91 93507 64376';
-  const cleanPhone = '919350764376';
-  const phoneTel = 'tel:+919350764376';
+  const {
+    isUnlocked,
+    phoneNumber,
+    cleanPhone,
+    phoneTel,
+    maskedPhone,
+    whatsappUrl: contextWhatsappUrl,
+    unlockContact,
+    openUnlockModal,
+  } = useContactUnlock();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -57,6 +65,15 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     const inqId = `KC-2026-${randomNum}`;
     setSubmittedInquiryId(inqId);
+
+    // Immediately unlock Kashyap Sir's personal number across the website
+    unlockContact({
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      studentClass,
+      targetExam,
+      email: email.trim(),
+    });
 
     // Persist to server backend for Owner Panel
     fetch('/api/inquiries', {
@@ -106,7 +123,11 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
             Easy Enrollment & Academic Counseling Inquiry
           </h2>
           <p className="text-slate-600 text-base leading-relaxed">
-            Reserve your seat or register for a <strong>Free Trial Demo Class</strong> with Arvind Kashyap (Kashyap Sir). Need instant assistance or course details? Download our official course brochure or call us at <strong className="text-slate-900">{phoneNumber}</strong>.
+            Reserve your seat or register for a <strong>Free Trial Demo Class</strong> with Arvind Kashyap (Kashyap Sir). Need instant assistance or course details? Download our official course brochure or {isUnlocked ? (
+              <>call us directly at <strong className="text-slate-900">{phoneNumber}</strong>.</>
+            ) : (
+              <>enter your details below to unlock Kashyap Sir’s direct personal contact number.</>
+            )}
           </p>
 
           {/* Quick Direct Connect and Download Brochure Ribbon */}
@@ -129,23 +150,61 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
               )}
             </button>
 
-            <a
-              href={phoneTel}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-blue-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all shadow-2xs active:scale-98"
-            >
-              <Phone className="w-3.5 h-3.5 fill-current" />
-              <span>Direct Call: {phoneNumber}</span>
-            </a>
+            {isUnlocked ? (
+              <a
+                href={phoneTel}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-blue-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all shadow-2xs active:scale-98"
+              >
+                <Phone className="w-3.5 h-3.5 fill-current" />
+                <span>Direct Call: {phoneNumber}</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.getElementById('enrollment-name-input');
+                  if (input) {
+                    input.focus();
+                  } else {
+                    openUnlockModal('To reveal Arvind Kashyap Sir’s direct helpline');
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all shadow-2xs active:scale-98 cursor-pointer"
+                title="Enter details in the form to unlock Kashyap Sir's personal number"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-900" />
+                <span>Direct Call: {maskedPhone} (Enter Details to Unlock)</span>
+              </button>
+            )}
 
-            <a
-              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello Kashyap Sir, I want to inquire about admissions at Kashyap Classes.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all shadow-2xs active:scale-98"
-            >
-              <MessageSquare className="w-3.5 h-3.5 fill-current" />
-              <span>Direct WhatsApp Chat</span>
-            </a>
+            {isUnlocked ? (
+              <a
+                href={contextWhatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all shadow-2xs active:scale-98"
+              >
+                <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                <span>Direct WhatsApp Chat</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  const input = document.getElementById('enrollment-name-input');
+                  if (input) {
+                    input.focus();
+                  } else {
+                    openUnlockModal('To reveal Arvind Kashyap Sir’s direct WhatsApp line');
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl transition-all shadow-2xs active:scale-98 cursor-pointer"
+                title="Enter details in the form to unlock Kashyap Sir's direct WhatsApp"
+              >
+                <Lock className="w-3.5 h-3.5 text-emerald-800" />
+                <span>WhatsApp: {maskedPhone} (Locked)</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -172,8 +231,22 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
                 </p>
               </div>
 
+              {/* Unlocked Contact Card */}
+              <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-amber-100/60 border-2 border-amber-300 rounded-2xl max-w-md mx-auto shadow-xs">
+                <div className="flex items-center justify-center gap-1.5 text-xs font-black text-amber-950 uppercase tracking-wider mb-1">
+                  <Unlock className="w-4 h-4 text-amber-800" />
+                  <span>Direct Contact Number Unlocked</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black font-mono text-slate-950 tracking-wide my-1">
+                  {phoneNumber}
+                </div>
+                <div className="text-xs text-slate-700 font-medium">
+                  Arvind Kashyap (Kashyap Sir) · Shastri Nagar, Ghaziabad
+                </div>
+              </div>
+
               {/* Direct call, WhatsApp & Brochure download actions */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <a
                   href={`https://wa.me/${cleanPhone}?text=${whatsappMessage}`}
                   target="_blank"
@@ -217,6 +290,7 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
                     Student Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="enrollment-name-input"
                     type="text"
                     required
                     placeholder="e.g. Rahul Sharma"
@@ -410,7 +484,13 @@ export const EnrollmentSection: React.FC<EnrollmentSectionProps> = ({ initialCou
                 <span aria-hidden="true">·</span>
                 <span>✓ Detailed Syllabus & Fee Structure in Brochure</span>
                 <span aria-hidden="true">·</span>
-                <span>✓ Helpline: {phoneNumber}</span>
+                <span>
+                  ✓ Helpline: {isUnlocked ? (
+                    <strong className="text-slate-800">{phoneNumber}</strong>
+                  ) : (
+                    <span className="text-slate-600">{maskedPhone} (Unlocked upon submitting form)</span>
+                  )}
+                </span>
               </div>
 
             </form>

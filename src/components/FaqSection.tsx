@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FAQS_DATA } from '../data/faqs';
-import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react';
+import { ChevronDown, HelpCircle, MessageCircle, Lock, Phone } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 export const FaqSection: React.FC = () => {
+  const { isUnlocked, phoneNumber, phoneTel, whatsappUrl, maskedPhone, openUnlockModal } = useContactUnlock();
   const [openFaq, setOpenFaq] = useState<string | null>('faq-1');
 
   const toggleFaq = (id: string) => {
@@ -74,21 +76,45 @@ export const FaqSection: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="tel:+919350764376"
-              className="px-4 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs"
-            >
-              <span>Call +91 93507 64376</span>
-            </a>
-            <a
-              href="https://wa.me/919350764376?text=Hello%20Kashyap%20Classes,%20I%20have%20a%20question%20regarding%20Physics%20batches."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs"
-            >
-              <MessageCircle className="w-3.5 h-3.5 fill-current" />
-              <span>WhatsApp Chat</span>
-            </a>
+            {isUnlocked ? (
+              <a
+                href={phoneTel}
+                className="px-4 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs"
+              >
+                <Phone className="w-3.5 h-3.5 fill-current" />
+                <span>Call {phoneNumber}</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => openUnlockModal('To call Arvind Kashyap Sir directly')}
+                className="px-4 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                title="Enter details to unlock Kashyap Sir's direct phone number"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>Call {maskedPhone} (Unlock)</span>
+              </button>
+            )}
+
+            {isUnlocked ? (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs"
+              >
+                <MessageCircle className="w-3.5 h-3.5 fill-current" />
+                <span>WhatsApp Chat</span>
+              </a>
+            ) : (
+              <button
+                onClick={() => openUnlockModal('To chat on WhatsApp with Arvind Kashyap Sir')}
+                className="px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95"
+                title="Enter details to unlock direct WhatsApp"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>WhatsApp (Unlock)</span>
+              </button>
+            )}
           </div>
         </div>
 

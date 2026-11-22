@@ -55,8 +55,9 @@ export const AboutMentor: React.FC<AboutMentorProps> = ({ onOpenInquiry }) => {
               <div className="relative">
                 <img
                   src="/assets/aistudio/kashyap_sir.jpg"
-                  alt="Arvind Kashyap (Kashyap Sir)"
-                  className="w-full h-72 sm:h-80 object-cover object-center"
+                  alt="Arvind Kashyap (Kashyap Sir) - Lead Physics Mentor"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-80 sm:h-96 object-cover object-center"
                 />
                 <div className="absolute bottom-3 left-3 bg-slate-950/90 text-amber-400 text-xs font-bold px-3 py-1 rounded-lg border border-amber-400/50 shadow-md">
                   Arvind Kashyap (Kashyap Sir)

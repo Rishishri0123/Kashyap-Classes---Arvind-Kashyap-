@@ -1,0 +1,40 @@
+Role & Instruction: Act as my full-stack engineer inside this project. Inspect my existing files and update the codebase directly—do not just show snippets. Keep my existing styling, theme, and layout, and organize the storefront into three clear, separate sections: Class 11 Physics Notes, Class 12 Physics Notes, and JEE Notes.
+
+Goal: Complete the entire Firebase connection, Cloudflare R2 private PDF storage, Admin Upload dashboard, and Razorpay payment system for both Single Notes and Bundle Notes across all three sections.
+
+Please implement and wire up all of the following in my project:
+
+1. Three-Section Storefront (Single Notes + Bundle Notes)
+- Create or update the navigation and catalog so students can easily switch between three dedicated sections:
+  1. Class 11 Physics Notes
+  2. Class 12 Physics Notes
+  3. JEE Notes
+- Inside each section, display both Single Notes (individual chapter PDFs with singlePriceInINR) and Bundle Notes (combo packs or multi-note selection with discounted bundlePriceInINR).
+- If a logged-in student already owns a note (via single or bundle purchase), automatically change its button from "Buy" to "Open PDF".
+
+2. Complete Firebase Connection (Auth + Firestore)
+- Set up firebase/app, firebase/auth (Google Sign-In + Email/Password), and firebase/firestore cleanly using environment variables.
+- Wrap the app in an AuthProvider (useAuth hook) so login state works across all three note sections, the navbar, and checkout.
+- Firestore Collections:
+  - notes: { id, title, description, section ("class-11-physics" | "class-12-physics" | "jee"), singlePriceInINR, bundlePriceInINR, pageCount, createdAt } (Store the private r2FileKey in a locked subcollection notes/{id}/private/storage so buyers cannot access raw links).
+  - bundles: { id, title, description, section ("class-11-physics" | "class-12-physics" | "jee"), includedNoteIds (string[]), bundlePriceInINR, createdAt }.
+  - purchases: { purchaseId, userId, unlockedNoteIds (string[]), section, purchaseType ("single" | "bundle"), razorpayOrderId, razorpayPaymentId, amountPaid, purchasedAt }.
+
+3. Admin Panel (Upload PDFs & Create Bundles)
+- Build a protected /admin page (accessible only to my admin email/UID) with two tabs:
+  - Upload Single PDF: Form with Section dropdown (Class 11 Physics, Class 12 Physics, JEE), Title, Description, Single Price (INR), Bundle Price (INR), and .pdf file input. Upload the PDF directly from the browser to my private Cloudflare R2 bucket via a presigned PUT URL (with progress bar) and save metadata to Firestore.
+  - Create Bundle Pack: Select a section, enter bundle title and bundle price (INR), check which uploaded notes belong to that bundle, and save to the bundles collection.
+
+4. Razorpay Checkout & Secure Payment Verification
+- Create backend API routes (using @aws-sdk/client-s3, @aws-sdk/s3-request-presigner, razorpay, and firebase-admin):
+  - /api/create-order: Takes { itemType: "single" | "bundle", itemId }, fetches the authentic price from Firestore (never trust frontend prices), and creates a Razorpay order in INR.
+  - /api/verify-payment: Verifies the razorpay_signature with Node crypto, unlocks all relevant noteIds (single note or all notes inside the bundle), and saves the record to Firestore purchases.
+- Wire the Razorpay Checkout popup directly to every "Buy Single Note" and "Buy Bundle" button across all three sections.
+
+5. Protected PDF Viewer (15-Minute Expiring Links)
+- Create /api/get-pdf-url: Verifies the student's Firebase Auth ID token, checks Firestore purchases to confirm the user owns that noteId, and generates a 15-minute expiring Cloudflare R2 presigned GET URL.
+- Wire "Open PDF" buttons to fetch this temporary link and open the PDF securely.
+
+6. Security Rules & Environment Template
+- Generate firestore.rules (public read for notes and bundles, owner-only read for purchases, zero client writes to purchases, admin-only access to private/storage and admin writes).
+- Update .env.example with all required Firebase, Cloudflare R2, and Razorpay keys, and list the exact setup steps for me at the end.

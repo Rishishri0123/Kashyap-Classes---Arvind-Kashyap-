@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { SCHEDULES_DATA, BatchSchedule } from '../data/schedules';
 import { Calendar, Clock, MapPin, ArrowRight, Download, Filter, CheckCircle2, Sparkles } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 interface ScheduleSectionProps {
   onOpenInquiry: (initialCourse?: string) => void;
 }
 
 export const ScheduleSection: React.FC<ScheduleSectionProps> = ({ onOpenInquiry }) => {
+  const { isUnlocked, phoneNumber, maskedPhone } = useContactUnlock();
+  const contactText = isUnlocked ? phoneNumber : `${maskedPhone} (Enter details in form on website to unlock)`;
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'class11' | 'class12' | 'jee' | 'neet'>('all');
   const [slotFilter, setSlotFilter] = useState<'all' | 'Morning' | 'Evening' | 'Weekend'>('all');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
@@ -20,7 +23,7 @@ export const ScheduleSection: React.FC<ScheduleSectionProps> = ({ onOpenInquiry 
   const handleDownloadTimetable = () => {
     setDownloadSuccess(true);
     const content = `KASHYAP CLASSES - PHYSICS BATCH TIMETABLE
-Under Arvind Kashyap (Kashyap Sir) | Call: +91 93507 64376
+Under Arvind Kashyap (Kashyap Sir) | Call: ${contactText}
 
 ${SCHEDULES_DATA.map(
   (b) => `-----------------------------------------
@@ -35,7 +38,7 @@ Mentor: ${b.faculty}
 `
 ).join('\n')}
 
-For batch admissions and free trial class bookings, call +91 93507 64376.
+For batch admissions and free trial class bookings, call ${contactText}.
 Website Developed by Rishi Shrivastav.`;
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });

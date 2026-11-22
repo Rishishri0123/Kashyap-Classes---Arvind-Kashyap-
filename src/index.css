@@ -6,13 +6,15 @@
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #0f172a;
     background-color: #f8fafc;
+    overflow-x: clip;
   }
-  
+
   body {
     color: #0f172a;
     background-color: #f8fafc;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
   }
   
   h1, h2, h3, h4, .font-heading {
@@ -25,12 +27,135 @@
   }
 }
 
+/* --- KASHYAP CLASSES LOGO COLOR PALETTE --- */
+:root {
+  /* Logo Deep Midnight Navy */
+  --kc-navy-950: #071527;
+  --kc-navy-900: #0c2340;
+  --kc-navy-800: #14325c;
+  --kc-navy-700: #1d457b;
+  --kc-navy-50: #f0f5fa;
+
+  /* Logo Signature Vibrant Orange */
+  --kc-orange-600: #e55300;
+  --kc-orange-500: #ff6600;
+  --kc-orange-400: #ff8533;
+  --kc-orange-100: #ffeedd;
+  --kc-orange-50: #fff7f0;
+}
+
+/* Logo Color Helper Utilities */
+.bg-kc-navy {
+  background-color: #0c2340;
+}
+.bg-kc-navy-dark {
+  background-color: #071527;
+}
+.text-kc-navy {
+  color: #0c2340;
+}
+.border-kc-navy {
+  border-color: #0c2340;
+}
+
+.bg-kc-orange {
+  background-color: #ff6600;
+}
+.text-kc-orange {
+  color: #ff6600;
+}
+.border-kc-orange {
+  border-color: #ff6600;
+}
+
+.bg-kc-orange-light {
+  background-color: #fff7f0;
+}
+.border-kc-orange-light {
+  border-color: #fed7aa;
+}
+
+.shadow-kc-orange {
+  box-shadow: 0 10px 25px -4px rgba(255, 102, 0, 0.35), 0 4px 10px -2px rgba(255, 102, 0, 0.2);
+}
+
+.shadow-kc-navy {
+  box-shadow: 0 10px 25px -4px rgba(12, 35, 64, 0.35);
+}
+
+.gradient-logo-btn {
+  background: linear-gradient(135deg, #ff6600 0%, #ea580c 100%);
+}
+.gradient-logo-btn:hover {
+  background: linear-gradient(135deg, #ff771a 0%, #d84e00 100%);
+}
+
+.gradient-logo-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fff7f0 100%);
+}
+
+.gradient-navy-header {
+  background: linear-gradient(90deg, #071527 0%, #0c2340 50%, #0a1f38 100%);
+}
+
+/* Hide scrollbar for Chrome, Safari, Edge and Firefox */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* --- ANIMATION KEYFRAMES --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3), 0 0 30px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.25), 0 0 30px rgba(59, 130, 246, 0.12);
   }
   50% {
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), 0 0 50px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.45), 0 0 50px rgba(59, 130, 246, 0.25);
   }
 }
 
@@ -39,7 +164,7 @@
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-8px) rotate(0.8deg);
+    transform: translateY(-8px) rotate(0.6deg);
   }
 }
 
@@ -48,7 +173,7 @@
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(8px) rotate(-0.8deg);
+    transform: translateY(8px) rotate(-0.6deg);
   }
 }
 
@@ -105,6 +230,23 @@
   }
 }
 
+/* --- ANIMATION UTILITY CLASSES --- */
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-down {
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .glow-card {
   animation: pulseGlow 4s infinite ease-in-out;
 }
@@ -145,7 +287,7 @@
   background: linear-gradient(
     60deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.35) 50%,
     transparent 70%
   );
   transform: translateX(-100%);
@@ -153,14 +295,22 @@
   pointer-events: none;
 }
 
-/* Interactive card lift micro-interaction */
+/* High-grade card hover lift micro-interaction */
 .card-hover-lift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 .card-hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Smooth clickable button transition */
+.btn-interactive {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn-interactive:active {
+  transform: scale(0.96);
 }
 
 /* Guaranteed High-Contrast Physics Grid Backgrounds */
@@ -176,8 +326,8 @@
   background-color: #ffffff;
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
 }
 
 /* Reduced Motion Override */
@@ -187,6 +337,10 @@
   .animate-pulse-subtle,
   .animate-spin-slow,
   .animate-spin-reverse-slow,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-scale-in,
   .shimmer-button-wrap::after,
   .glow-card {
     animation: none !important;

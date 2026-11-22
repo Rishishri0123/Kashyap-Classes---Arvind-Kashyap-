@@ -1,0 +1,234 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Deny all unspecified paths by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Reusable Hardened Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Admin check: explicit UID allowlist doc OR verified runtime owner email
+    function isAdmin() {
+      return isVerifiedUser() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'rishishrivastav16@gmail.com'
+      );
+    }
+
+    function isValidSection(sec) {
+      return sec is string && sec.size() <= 40 && sec in ['class-11-physics', 'class-12-physics', 'jee'];
+    }
+
+    // 3. Entity Validation Blueprints
+    function isValidNote(data) {
+      return data.keys().hasAll([
+          'id',
+          'title',
+          'description',
+          'section',
+          'singlePriceInINR',
+          'bundlePriceInINR',
+          'pageCount',
+          'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id',
+          'title',
+          'description',
+          'section',
+          'singlePriceInINR',
+          'bundlePriceInINR',
+          'pageCount',
+          'createdAt'
+        ]) &&
+        isValidId(data.id) &&
+        data.title is string && data.title.size() >= 2 && data.title.size() <= 160 &&
+        data.description is string && data.description.size() >= 2 && data.description.size() <= 2000 &&
+        isValidSection(data.section) &&
+        data.singlePriceInINR is number && data.singlePriceInINR >= 0 && data.singlePriceInINR <= 100000 &&
+        data.bundlePriceInINR is number && data.bundlePriceInINR >= 0 && data.bundlePriceInINR <= 100000 &&
+        data.pageCount is int && data.pageCount >= 1 && data.pageCount <= 5000 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidPrivateStorage(data) {
+      return data.keys().hasAll([
+          'r2FileKey',
+          'originalFileName',
+          'fileSizeBytes',
+          'contentType',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'r2FileKey',
+          'originalFileName',
+          'fileSizeBytes',
+          'contentType',
+          'updatedAt'
+        ]) &&
+        data.r2FileKey is string && data.r2FileKey.size() >= 3 && data.r2FileKey.size() <= 512 &&
+        data.originalFileName is string && data.originalFileName.size() >= 1 && data.originalFileName.size() <= 255 &&
+        data.fileSizeBytes is int && data.fileSizeBytes >= 1 && data.fileSizeBytes <= 209715200 &&
+        data.contentType is string && data.contentType.size() >= 5 && data.contentType.size() <= 100 &&
+        data.contentType == 'application/pdf' &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidBundle(data) {
+      return data.keys().hasAll([
+          'id',
+          'title',
+          'description',
+          'section',
+          'includedNoteIds',
+          'bundlePriceInINR',
+          'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id',
+          'title',
+          'description',
+          'section',
+          'includedNoteIds',
+          'bundlePriceInINR',
+          'createdAt'
+        ]) &&
+        isValidId(data.id) &&
+        data.title is string && data.title.size() >= 2 && data.title.size() <= 160 &&
+        data.description is string && data.description.size() >= 2 && data.description.size() <= 2000 &&
+        isValidSection(data.section) &&
+        data.includedNoteIds is list && data.includedNoteIds.size() >= 1 && data.includedNoteIds.size() <= 50 &&
+        data.includedNoteIds[0] is string &&
+        data.bundlePriceInINR is number && data.bundlePriceInINR >= 0 && data.bundlePriceInINR <= 100000 &&
+        data.createdAt is timestamp;
+    }
+
+    // 4. Connection check document
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // 5. Public Notes Catalog + Locked Private Storage Subcollection
+    match /notes/{noteId} {
+      allow get: if isValidId(noteId);
+      allow list: if true;
+
+      allow create: if isSignedIn() &&
+        isValidId(noteId) &&
+        isValidNote(incoming()) &&
+        incoming().id == noteId &&
+        incoming().createdAt == request.time &&
+        isAdmin();
+
+      allow update: if isSignedIn() &&
+        isValidId(noteId) &&
+        isValidNote(incoming()) &&
+        incoming().id == noteId &&
+        incoming().createdAt == existing().createdAt &&
+        isAdmin() &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'title',
+          'description',
+          'section',
+          'singlePriceInINR',
+          'bundlePriceInINR',
+          'pageCount'
+        ]);
+
+      allow delete: if isSignedIn() && isValidId(noteId) && isAdmin();
+
+      // Locked private subcollection for raw Cloudflare R2 object keys
+      match /private/{docId} {
+        allow get: if isSignedIn() && isValidId(noteId) && docId == 'storage' && isAdmin();
+        allow list: if false;
+
+        allow create: if isSignedIn() &&
+          isValidId(noteId) &&
+          docId == 'storage' &&
+          isValidPrivateStorage(incoming()) &&
+          incoming().updatedAt == request.time &&
+          isAdmin() &&
+          existsAfter(/databases/$(database)/documents/notes/$(noteId));
+
+        allow update: if isSignedIn() &&
+          isValidId(noteId) &&
+          docId == 'storage' &&
+          isValidPrivateStorage(incoming()) &&
+          incoming().updatedAt == request.time &&
+          isAdmin() &&
+          exists(/databases/$(database)/documents/notes/$(noteId)) &&
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'r2FileKey',
+            'originalFileName',
+            'fileSizeBytes',
+            'contentType',
+            'updatedAt'
+          ]);
+
+        allow delete: if isSignedIn() && isValidId(noteId) && docId == 'storage' && isAdmin();
+      }
+    }
+
+    // 6. Public Bundles Catalog
+    match /bundles/{bundleId} {
+      allow get: if isValidId(bundleId);
+      allow list: if true;
+
+      allow create: if isSignedIn() &&
+        isValidId(bundleId) &&
+        isValidBundle(incoming()) &&
+        incoming().id == bundleId &&
+        incoming().createdAt == request.time &&
+        isAdmin();
+
+      allow update: if isSignedIn() &&
+        isValidId(bundleId) &&
+        isValidBundle(incoming()) &&
+        incoming().id == bundleId &&
+        incoming().createdAt == existing().createdAt &&
+        isAdmin() &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'title',
+          'description',
+          'section',
+          'includedNoteIds',
+          'bundlePriceInINR'
+        ]);
+
+      allow delete: if isSignedIn() && isValidId(bundleId) && isAdmin();
+    }
+
+    // 7. Purchases: Owner-only read, zero client writes (Admin SDK verifies Razorpay & writes)
+    match /purchases/{purchaseId} {
+      allow get: if isSignedIn() && isValidId(purchaseId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create, update, delete: if false;
+    }
+
+    // 8. Admin Allowlist: Read own status only, zero client writes
+    match /admins/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      allow list, create, update, delete: if false;
+    }
+  }
+}

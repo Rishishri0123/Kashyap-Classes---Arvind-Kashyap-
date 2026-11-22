@@ -136,7 +136,7 @@ export const InteractiveConceptResolver: React.FC = () => {
           
           {/* TAB 1: CLASS 12 YOUNG'S DOUBLE SLIT EXPERIMENT (YDSE) */}
           {activeTab === 'ydse' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in">
               
               {/* Left Controls */}
               <div className="lg:col-span-5 space-y-5">
@@ -355,7 +355,7 @@ export const InteractiveConceptResolver: React.FC = () => {
 
           {/* TAB 2: CLASS 12 ELECTROMAGNETIC INDUCTION (LENZ'S LAW) */}
           {activeTab === 'induction' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in">
               <div className="lg:col-span-5 space-y-5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -521,7 +521,7 @@ export const InteractiveConceptResolver: React.FC = () => {
 
           {/* TAB 3: CLASS 12 PHOTOELECTRIC EFFECT */}
           {activeTab === 'photoelectric' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in">
               <div className="lg:col-span-5 space-y-5">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -652,7 +652,7 @@ export const InteractiveConceptResolver: React.FC = () => {
 
           {/* TAB 4: CLASS 11 PROJECTILE ON INCLINE */}
           {activeTab === 'projectile' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in">
               <div className="lg:col-span-5 space-y-5">
                 <div className="space-y-1">
                   <div className="text-xs font-bold text-blue-950 uppercase tracking-wider font-mono">

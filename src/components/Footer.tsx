@@ -1,15 +1,28 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Code2, Award, BookOpen, ExternalLink, Star, ShieldCheck, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Code2, Award, BookOpen, ExternalLink, Star, ShieldCheck, Lock, Unlock } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
+import {
+  CENTER_ADDRESS,
+  CENTER_DIRECTOR,
+  CENTER_NAME,
+  buildGoogleMapsSearchUrl,
+} from '../config/centerLocation';
 
 interface FooterProps {
   onOpenOwnerPanel?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenOwnerPanel }) => {
-  const phoneNumber = '+91 93507 64376';
-  const phoneTel = 'tel:+919350764376';
-  const whatsappUrl = 'https://wa.me/919350764376?text=Hello%20Kashyap%20Classes,%20I%20would%20like%20to%20inquire%20about%20Physics%20batches.';
-  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Flat+No.+202+B-1+MP+Enclave+Bank+Enclave+Shastri+Nagar+Ghaziabad+Uttar+Pradesh+201002';
+  const {
+    isUnlocked,
+    phoneNumber,
+    phoneTel,
+    whatsappUrl,
+    maskedPhone,
+    openUnlockModal,
+  } = useContactUnlock();
+  const mapsUrl = buildGoogleMapsSearchUrl();
 
   return (
     <footer className="bg-slate-100 text-slate-700 border-t-2 border-slate-300">
@@ -20,9 +33,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenOwnerPanel }) => {
           {/* Col 1: Institute Branding & Philosophy */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <span className="w-10 h-10 rounded-xl bg-blue-950 text-amber-400 font-black flex items-center justify-center text-lg shadow-sm border border-blue-900">
-                KC
-              </span>
+              <img
+                src="/assets/aistudio/kashyap_classes_logo.png"
+                alt="Kashyap Classes Official Logo"
+                className="w-12 h-12 rounded-xl object-contain shadow-xs border border-slate-200 bg-white p-1 shrink-0"
+              />
               <div className="flex flex-col">
                 <span className="text-xl font-extrabold text-slate-950 tracking-tight font-heading leading-tight">
                   Kashyap Classes
@@ -66,64 +81,64 @@ export const Footer: React.FC<FooterProps> = ({ onOpenOwnerPanel }) => {
             </h4>
             <ul className="space-y-2 text-xs font-semibold text-slate-600">
               <li>
-                <a href="#courses" className="hover:text-blue-900 hover:underline transition-colors">
+                <Link to="/programs" className="hover:text-blue-900 hover:underline transition-colors">
                   Class 11 Physics Primer
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#courses" className="hover:text-blue-900 hover:underline transition-colors">
+                <Link to="/programs" className="hover:text-blue-900 hover:underline transition-colors">
                   Class 12 Board Numerical
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#courses" className="hover:text-blue-900 hover:underline transition-colors">
+                <Link to="/programs" className="hover:text-blue-900 hover:underline transition-colors">
                   JEE (Main & Advanced) Cohort
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#courses" className="hover:text-blue-900 hover:underline transition-colors">
+                <Link to="/programs" className="hover:text-blue-900 hover:underline transition-colors">
                   NEET 170+ High-Yield Batch
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#schedules" className="hover:text-blue-900 hover:underline transition-colors">
+                <Link to="/schedules" className="hover:text-blue-900 hover:underline transition-colors">
                   Batch Timetables (100% Offline)
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Academic Resources & NCERT Textbooks */}
+          {/* Col 3: Academic Resources & Notes Storefront */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-blue-950 uppercase tracking-wider flex items-center gap-1">
               <BookOpen className="w-3.5 h-3.5 text-blue-900" />
-              <span>NCERT Physics Hub</span>
+              <span>Notes Store & NCERT</span>
             </h4>
             <ul className="space-y-2 text-xs font-semibold text-slate-600">
               <li>
-                <a href="#ncert-books" className="hover:text-blue-900 hover:underline transition-colors">
-                  NCERT Class 11 Part 1 & 2
-                </a>
+                <Link to="/notes/class-11" className="hover:text-blue-900 hover:underline transition-colors">
+                  Class 11 Physics Notes
+                </Link>
               </li>
               <li>
-                <a href="#ncert-books" className="hover:text-blue-900 hover:underline transition-colors">
-                  NCERT Class 12 Part 1 & 2
-                </a>
+                <Link to="/notes/class-12" className="hover:text-blue-900 hover:underline transition-colors">
+                  Class 12 Physics Notes
+                </Link>
               </li>
               <li>
-                <a href="#concept-lab" className="hover:text-blue-900 hover:underline transition-colors">
-                  Class 12 Wave Optics & YDSE Lab
-                </a>
+                <Link to="/notes/jee" className="hover:text-blue-900 hover:underline transition-colors">
+                  JEE Main & Advanced Notes
+                </Link>
               </li>
               <li>
-                <a href="#concept-lab" className="hover:text-blue-900 hover:underline transition-colors">
-                  Class 12 Lenz's Law Simulation
-                </a>
+                <Link to="/ncert" className="hover:text-blue-900 hover:underline transition-colors">
+                  NCERT Textbooks Hub
+                </Link>
               </li>
               <li>
-                <a href="#concept-lab" className="hover:text-blue-900 hover:underline transition-colors">
-                  Interactive Physics Lab
-                </a>
+                <Link to="/admin" className="hover:text-blue-900 hover:underline transition-colors">
+                  Admin Upload Studio
+                </Link>
               </li>
             </ul>
           </div>
@@ -137,40 +152,74 @@ export const Footer: React.FC<FooterProps> = ({ onOpenOwnerPanel }) => {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                 <div className="leading-snug">
-                  <div className="font-bold text-slate-900">Kashyap Classes (Arvind Kashyap)</div>
-                  <div>Flat No. 202, B-1, M P Enclave, Bank Enclave, Shastri Nagar, Ghaziabad, Uttar Pradesh 201002</div>
-                  <a
-                    href={mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-900 hover:underline mt-1"
-                  >
-                    <span>View on Google Maps</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <div className="font-bold text-slate-900">{CENTER_NAME} ({CENTER_DIRECTOR.split(' (')[0]})</div>
+                  <div>{CENTER_ADDRESS}</div>
+                  <div className="flex flex-wrap items-center gap-3 mt-1">
+                    <Link
+                      to="/location"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#ff6600] hover:underline"
+                    >
+                      <span>Interactive Center Map</span>
+                    </Link>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-900 hover:underline"
+                    >
+                      <span>View on Google Maps</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-blue-900 shrink-0" />
-                <a
-                  href={phoneTel}
-                  className="font-mono font-bold text-slate-900 hover:text-blue-900 transition-colors"
-                >
-                  {phoneNumber}
-                </a>
+                {isUnlocked ? (
+                  <a
+                    href={phoneTel}
+                    className="font-mono font-bold text-slate-900 hover:text-blue-900 transition-colors"
+                  >
+                    {phoneNumber}
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-medium text-slate-600">{maskedPhone}</span>
+                    <button
+                      onClick={() => openUnlockModal('To view Kashyap Sir’s direct telephone number')}
+                      className="text-[10px] font-bold text-blue-900 bg-amber-200/90 hover:bg-amber-300 px-2 py-0.5 rounded border border-amber-300 cursor-pointer flex items-center gap-1"
+                    >
+                      <Lock className="w-2.5 h-2.5" />
+                      <span>Unlock Number</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2.5">
                 <MessageSquare className="w-4 h-4 text-emerald-600 shrink-0" />
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 hover:text-emerald-600 font-bold transition-colors"
-                >
-                  WhatsApp: +91 93507 64376
-                </a>
+                {isUnlocked ? (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 hover:text-emerald-600 font-bold transition-colors"
+                  >
+                    WhatsApp: {phoneNumber}
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-600 text-xs">WhatsApp: {maskedPhone}</span>
+                    <button
+                      onClick={() => openUnlockModal('To unlock direct WhatsApp chat with Arvind Kashyap Sir')}
+                      className="text-[10px] font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded border border-emerald-300 cursor-pointer flex items-center gap-1"
+                    >
+                      <Lock className="w-2.5 h-2.5" />
+                      <span>Unlock</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2.5">

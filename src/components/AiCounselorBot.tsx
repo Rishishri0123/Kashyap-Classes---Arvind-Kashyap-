@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Sparkles, MessageSquare, Phone, ChevronRight, BookOpen, Calendar, Award, Code2, Layers, Download, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bot, X, Send, Sparkles, MessageSquare, Phone, ChevronRight, BookOpen, Calendar, Award, Code2, Layers, Download, CheckCircle2, Lock } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 interface Message {
   id: string;
@@ -19,14 +21,13 @@ interface AiCounselorBotProps {
 }
 
 export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, onDownloadBrochure }) => {
+  const navigate = useNavigate();
+  const { isUnlocked, phoneNumber, phoneTel, whatsappUrl, maskedPhone, openUnlockModal } = useContactUnlock();
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const phoneNumber = '+91 93507 64376';
-  const phoneTel = 'tel:+919350764376';
-  const whatsappUrl = 'https://wa.me/919350764376?text=Hello%20Kashyap%20Sir,%20I%20am%20chatting%20with%20your%20AI%20Sahayak%20and%20would%20like%20to%20know%20more%20about%20Physics%20admissions.';
 
   const botName = 'Kashyap AI Sahayak';
 
@@ -81,7 +82,10 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       return { label: 'Download Course Brochure (PDF)', onClickType: 'brochure' };
     }
     if (combined.includes('contact') || combined.includes('call') || combined.includes('helpline')) {
-      return { label: 'Call Arvind Kashyap (+91 93507 64376)', onClickType: 'call' };
+      return {
+        label: isUnlocked ? `Call Arvind Kashyap (${phoneNumber})` : `Unlock Contact Number (${maskedPhone})`,
+        onClickType: 'call',
+      };
     }
     return { label: 'Book Free Trial Demo', onClickType: 'demo' };
   };
@@ -89,6 +93,8 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
   // Generate dynamic, context-specific follow-up suggestions
   const generateDynamicSuggestions = (query: string, reply: string): string[] => {
     const q = (query + ' ' + reply).toLowerCase();
+    const phoneOption = isUnlocked ? `Call ${phoneNumber}` : 'Unlock Direct Number';
+
     if (q.includes('note') || q.includes('handwritten')) {
       return ['Unlock Class 12 Notes', 'View Center on Google Map', 'Book Free Trial Class'];
     }
@@ -96,7 +102,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       return ['Driving Directions to Center', 'Class 12 Notes (All 14 Ch)', 'Book Offline Trial Demo'];
     }
     if (q.includes('online') || q.includes('record')) {
-      return ['100% Offline Classroom Policy', 'Book Free Trial Class', 'Call +91 93507 64376'];
+      return ['100% Offline Classroom Policy', 'Book Free Trial Class', phoneOption];
     }
     if (q.includes('rishi') || q.includes('developer') || q.includes('creator')) {
       return ['Try Class 12 Simulation Lab', 'Class 12 Notes (14 Ch)', 'Download NCERT Physics'];
@@ -114,7 +120,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       return ['JEE Problem Topologies', 'Class 12 Handwritten Notes', 'Speak with Kashyap Sir'];
     }
     if (q.includes('fee') || q.includes('cost') || q.includes('payment')) {
-      return ['Book Free Trial Demo', 'Download Syllabus Brochure', 'Call +91 93507 64376'];
+      return ['Book Free Trial Demo', 'Download Syllabus Brochure', phoneOption];
     }
     if (q.includes('timing') || q.includes('schedule')) {
       return ['Book Free Trial Slot', 'Class 12 Morning Batch', 'Class 11 Evening Batch'];
@@ -133,16 +139,98 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
+    const botMessageId = `bot-${Date.now()}`;
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
 
     // Build chat history for multi-turn context
-    const historyPayload = messages.slice(-5).map((m) => ({
+    const historyPayload = messages.slice(-4).map((m) => ({
       role: m.sender === 'user' ? 'user' : 'model',
       text: m.text,
     }));
 
+    try {
+      // 1. Real-time streaming response for instantaneous feedback
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: historyPayload }),
+      });
+
+      if (response.ok && response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = '';
+        let hasAppendedBot = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const rawChunk = decoder.decode(value, { stream: true });
+          const lines = rawChunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6).trim();
+              if (dataStr === '[DONE]') {
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.chunk) {
+                  accumulatedText += parsed.chunk;
+
+                  if (!hasAppendedBot) {
+                    hasAppendedBot = true;
+                    setIsTyping(false);
+                    setMessages((prev) => [
+                      ...prev,
+                      {
+                        id: botMessageId,
+                        sender: 'bot',
+                        text: accumulatedText,
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      },
+                    ]);
+                  } else {
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === botMessageId ? { ...m, text: accumulatedText } : m
+                      )
+                    );
+                  }
+                }
+              } catch {
+                // Ignore parse errors on chunk boundaries
+              }
+            }
+          }
+        }
+
+        if (accumulatedText) {
+          setIsTyping(false);
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMessageId
+                ? {
+                    ...m,
+                    text: accumulatedText,
+                    suggestions: generateDynamicSuggestions(text, accumulatedText),
+                    actionLink: detectActionLink(text, accumulatedText),
+                  }
+                : m
+            )
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Streaming failed, attempting fast fallback:', e);
+    }
+
+    // 2. High-speed standard fallback endpoint
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -159,7 +247,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
           setMessages((prev) => [
             ...prev,
             {
-              id: `bot-${Date.now()}`,
+              id: botMessageId,
               sender: 'bot',
               text: replyText,
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -171,7 +259,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
         }
       }
     } catch (e) {
-      console.warn('Network error in AI chat:', e);
+      console.warn('Standard fallback error:', e);
     }
 
     // High quality intelligent client fallback if network disconnected
@@ -179,9 +267,9 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
     setMessages((prev) => [
       ...prev,
       {
-        id: `bot-${Date.now()}`,
+        id: botMessageId,
         sender: 'bot',
-        text: `At **Kashyap Classes**, Arvind Kashyap (Kashyap Sir) personally teaches conceptual physics for Class 11, Class 12, JEE, and NEET.\n\n*(Website Developed & Created by Rishi Shrivastav)*\n\n• **Official NCERT PDFs**: Available in our NCERT Physics Hub.\n• **Class 12 Lab**: Test our live interactive Wave Optics (YDSE) and Lenz's Law simulators.\n• **Free Trial**: Attend a Free 2-Hour Live Trial Class.\n• **Direct Helpline**: Call or WhatsApp +91 93507 64376.`,
+        text: `At **Kashyap Classes**, Arvind Kashyap (Kashyap Sir) personally teaches conceptual physics for Class 11, Class 12, JEE, and NEET.\n\n*(Website Developed & Created by Rishi Shrivastav)*\n\n• **Official NCERT PDFs**: Available in our NCERT Physics Hub.\n• **Class 12 Lab**: Test our live interactive Wave Optics (YDSE) and Lenz's Law simulators.\n• **Free Trial**: Attend a Free 2-Hour Live Trial Class.\n• **Direct Helpline**: ${isUnlocked ? `Call or WhatsApp ${phoneNumber}.` : `Helpline: ${maskedPhone} (Submit inquiry form to unlock number).`}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         suggestions: ['Explore Class 12 Lab', 'Download NCERT Physics', 'Book Free Trial Demo'],
         actionLink: { label: 'Book Free Trial Demo', onClickType: 'demo' },
@@ -196,50 +284,55 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       onDownloadBrochure();
     } else if (actionType === 'notes') {
       setIsOpen(false);
-      const el = document.getElementById('class12-notes');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      navigate('/notes');
     } else if (actionType === 'map') {
       setIsOpen(false);
-      const el = document.getElementById('location-map');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      navigate('/location');
     } else if (actionType === 'ncert') {
       setIsOpen(false);
-      const el = document.getElementById('ncert-books');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      navigate('/ncert');
     } else if (actionType === 'lab') {
       setIsOpen(false);
-      const el = document.getElementById('concept-lab');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      navigate('/lab');
     } else if (actionType === 'call') {
-      window.location.href = phoneTel;
+      if (isUnlocked) {
+        window.location.href = phoneTel;
+      } else {
+        openUnlockModal('To call Arvind Kashyap Sir directly');
+      }
     } else if (actionType === 'whatsapp') {
-      window.open(whatsappUrl, '_blank');
+      if (isUnlocked) {
+        window.open(whatsappUrl, '_blank');
+      } else {
+        openUnlockModal('To chat directly on WhatsApp with Arvind Kashyap Sir');
+      }
     }
   };
 
   return (
     <>
       {/* Bot Floating Trigger Button (Bottom-Left) - Small, Compact, Non-Obtrusive */}
+      {/* Bot Floating Trigger Button (Bottom-Left) - Logo Colors */}
       <div className="fixed bottom-4 left-3 sm:left-4 z-40">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-950 via-indigo-900 to-blue-900 text-white rounded-full shadow-lg hover:shadow-blue-900/40 border border-blue-400/40 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-amber-400/40"
+            className="group relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-[#0c2340] hover:bg-[#071527] text-white rounded-full shadow-lg border border-[#14325c] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ring-2 ring-[#ff6600]/50"
             aria-label="Ask Kashyap AI Sahayak"
             title="Ask Kashyap AI Sahayak"
           >
-            <div className="w-6 h-6 rounded-full bg-amber-400 text-blue-950 flex items-center justify-center font-bold text-xs shadow-xs">
+            <div className="w-6 h-6 rounded-full bg-[#ff6600] text-white flex items-center justify-center font-bold text-xs shadow-xs">
               <Bot className="w-3.5 h-3.5" />
             </div>
             
             {/* Small status indicator dot */}
             <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400 border border-blue-950" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff6600] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff6600] border border-[#0c2340]" />
             </span>
 
             {/* Subtle Desktop Tooltip on Hover */}
-            <span className="hidden sm:group-hover:inline-block absolute left-12 bg-slate-900 text-white text-[10px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-lg border border-slate-700 pointer-events-none">
+            <span className="hidden sm:group-hover:inline-block absolute left-12 bg-[#0c2340] text-white text-[10px] font-bold py-1 px-2.5 rounded-lg whitespace-nowrap shadow-lg border border-slate-700 pointer-events-none">
               Ask AI · Developed by Rishi Shrivastav
             </span>
           </button>
@@ -250,10 +343,10 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
       {isOpen && (
         <div className="fixed bottom-4 left-3 sm:left-4 z-50 w-[92vw] sm:w-[410px] h-[540px] max-h-[82vh] bg-white rounded-3xl shadow-2xl border-2 border-slate-300 flex flex-col overflow-hidden animate-fade-in font-sans">
           
-          {/* Header with Developer Attribution */}
-          <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-950 text-white p-3.5 flex items-center justify-between border-b border-blue-800">
+          {/* Header with Logo Deep Navy */}
+          <div className="bg-gradient-to-r from-[#071527] via-[#0c2340] to-[#14325c] text-white p-3.5 flex items-center justify-between border-b border-[#071527]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-amber-400 text-blue-950 flex items-center justify-center font-bold text-sm shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-[#ff6600] text-white flex items-center justify-center font-bold text-sm shadow-sm">
                 <Bot className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
@@ -263,7 +356,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
                   </span>
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Online" />
                 </div>
-                <span className="text-[10px] text-amber-300 font-medium">
+                <span className="text-[10px] text-orange-200 font-medium">
                   Physics Counselor · Created by Rishi Shrivastav
                 </span>
               </div>
@@ -279,9 +372,20 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
           </div>
 
           {/* Quick Notice Banner with helpline */}
-          <div className="bg-amber-50 px-3 py-1 border-b border-amber-200 text-[10px] text-amber-900 font-semibold flex items-center justify-between">
+          <div className="bg-[#fff7f0] px-3 py-1 border-b border-[#fed7aa] text-[10px] text-[#0c2340] font-semibold flex items-center justify-between">
             <span>⚡ Complete knowledge of website & courses</span>
-            <span className="text-amber-800 font-bold">Helpline: +91 93507 64376</span>
+            {isUnlocked ? (
+              <span className="text-[#ff6600] font-bold">Helpline: {phoneNumber}</span>
+            ) : (
+              <button
+                onClick={() => openUnlockModal('To view Kashyap Sir’s direct telephone helpline')}
+                className="text-[#ff6600] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                title="Enter details to unlock helpline"
+              >
+                <Lock className="w-2.5 h-2.5" />
+                <span>Helpline: {maskedPhone} (Unlock)</span>
+              </button>
+            )}
           </div>
 
           {/* Messages Container with Smooth Overscroll Contain */}
@@ -294,7 +398,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
                 <div
                   className={`max-w-[90%] p-3.5 rounded-2xl shadow-2xs leading-relaxed whitespace-pre-line ${
                     msg.sender === 'user'
-                      ? 'bg-blue-950 text-white rounded-br-none font-medium'
+                      ? 'bg-[#0c2340] text-white rounded-br-none font-medium'
                       : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
                   }`}
                 >
@@ -305,7 +409,7 @@ export const AiCounselorBot: React.FC<AiCounselorBotProps> = ({ onOpenInquiry, o
                     <div className="mt-2.5 pt-2 border-t border-slate-100">
                       <button
                         onClick={() => handleActionClick(msg.actionLink?.onClickType)}
-                        className="w-full py-2 px-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-98"
+                        className="w-full py-2 px-3 bg-[#ff6600] hover:bg-[#ea580c] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-kc-orange active:scale-98"
                       >
                         <Sparkles className="w-3.5 h-3.5 fill-current" />
                         <span>{msg.actionLink.label}</span>

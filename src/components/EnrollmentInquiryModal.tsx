@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, MessageSquare, AlertCircle, Send, Phone } from 'lucide-react';
+import { X, CheckCircle2, MessageSquare, AlertCircle, Send, Phone, Lock, Unlock } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 interface EnrollmentInquiryModalProps {
   isOpen: boolean;
@@ -12,9 +13,14 @@ export const EnrollmentInquiryModal: React.FC<EnrollmentInquiryModalProps> = ({
   onClose,
   initialCourse = '',
 }) => {
-  const phoneNumber = '+91 93507 64376';
-  const cleanPhone = '919350764376';
-  const phoneTel = 'tel:+919350764376';
+  const {
+    isUnlocked,
+    phoneNumber,
+    cleanPhone,
+    phoneTel,
+    maskedPhone,
+    unlockContact,
+  } = useContactUnlock();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -59,6 +65,14 @@ export const EnrollmentInquiryModal: React.FC<EnrollmentInquiryModalProps> = ({
     setError(null);
     const inqCode = `KC-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     setSubmittedId(inqCode);
+
+    // Immediately unlock Kashyap Sir's personal number
+    unlockContact({
+      fullName: fullName.trim(),
+      phone: cleanPhoneInput,
+      studentClass,
+      targetExam,
+    });
 
     // Persist to server backend for Owner Panel
     fetch('/api/inquiries', {
@@ -185,16 +199,31 @@ export const EnrollmentInquiryModal: React.FC<EnrollmentInquiryModalProps> = ({
             /* Inquiry Modal Form */
             <div className="space-y-4">
               {/* Quick Call Notice */}
-              <div className="flex items-center justify-between p-3 bg-blue-50/80 rounded-2xl border border-blue-200 text-xs">
-                <span className="text-slate-700 font-semibold">Prefer talking directly?</span>
-                <a
-                  href={phoneTel}
-                  className="font-black text-blue-950 hover:underline flex items-center gap-1.5 font-mono bg-white px-2.5 py-1 rounded-lg border border-blue-200 shadow-2xs"
-                >
-                  <Phone className="w-3.5 h-3.5 fill-current text-amber-500" />
-                  <span>{phoneNumber}</span>
-                </a>
-              </div>
+              {isUnlocked ? (
+                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs">
+                  <div className="flex items-center gap-1.5 text-emerald-900 font-bold">
+                    <Unlock className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Direct Helpline:</span>
+                  </div>
+                  <a
+                    href={phoneTel}
+                    className="font-black text-blue-950 hover:underline flex items-center gap-1.5 font-mono bg-white px-2.5 py-1 rounded-lg border border-emerald-300 shadow-2xs"
+                  >
+                    <Phone className="w-3.5 h-3.5 fill-current text-amber-500" />
+                    <span>{phoneNumber}</span>
+                  </a>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-blue-50/80 rounded-2xl border border-blue-200 text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-700 font-semibold">
+                    <Lock className="w-3.5 h-3.5 text-blue-900" />
+                    <span>Direct Helpline:</span>
+                  </div>
+                  <span className="font-mono font-bold text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">
+                    {maskedPhone} (Enter details to unlock)
+                  </span>
+                </div>
+              )}
 
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-bold flex items-center gap-2">

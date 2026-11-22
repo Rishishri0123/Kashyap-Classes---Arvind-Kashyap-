@@ -1,11 +1,13 @@
 import React from 'react';
-import { CheckCircle2, Award, BookOpen, Clock, Users, Shield, Sparkles, FileText, Video, HelpCircle } from 'lucide-react';
+import { CheckCircle2, Award, BookOpen, Clock, Users, Shield, Sparkles, FileText, Video, HelpCircle, Lock } from 'lucide-react';
+import { useContactUnlock } from '../context/ContactUnlockContext';
 
 interface AcademicFeaturesProps {
   onOpenInquiry: (initialCourse?: string) => void;
 }
 
 export const AcademicFeatures: React.FC<AcademicFeaturesProps> = ({ onOpenInquiry }) => {
+  const { isUnlocked, phoneNumber, phoneTel, maskedPhone, openUnlockModal } = useContactUnlock();
   const features = [
     {
       title: 'Daily 1:1 Doubt Counters',
@@ -123,12 +125,23 @@ export const AcademicFeatures: React.FC<AcademicFeaturesProps> = ({ onOpenInquir
             >
               Book Free Trial Seat
             </button>
-            <a
-              href="tel:+919350764376"
-              className="px-5 py-3 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 border-2 border-slate-300 rounded-xl transition-all active:scale-98 shadow-xs"
-            >
-              Call Helpline: +91 93507 64376
-            </a>
+            {isUnlocked ? (
+              <a
+                href={phoneTel}
+                className="px-5 py-3 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 border-2 border-slate-300 rounded-xl transition-all active:scale-98 shadow-xs"
+              >
+                Call Helpline: {phoneNumber}
+              </a>
+            ) : (
+              <button
+                onClick={() => openUnlockModal('To call Arvind Kashyap Sir directly')}
+                className="px-5 py-3 text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 border-2 border-slate-300 rounded-xl transition-all active:scale-98 shadow-xs flex items-center gap-1.5 cursor-pointer"
+                title="Enter details to reveal helpline"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-600" />
+                <span>Helpline: {maskedPhone} (Unlock)</span>
+              </button>
+            )}
           </div>
         </div>
 

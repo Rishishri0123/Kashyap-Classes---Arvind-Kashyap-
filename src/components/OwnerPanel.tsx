@@ -27,9 +27,11 @@ import {
   ExternalLink,
   ChevronDown,
   Building,
-  FileSpreadsheet
+  FileSpreadsheet,
+  FolderOpen
 } from 'lucide-react';
 import { InquiryRecord } from '../types/inquiry';
+import { GOOGLE_DRIVE_NOTES_FOLDER } from '../data/class12Notes';
 
 interface OwnerPanelProps {
   isOpen: boolean;
@@ -381,8 +383,12 @@ export const OwnerPanel: React.FC<OwnerPanelProps> = ({ isOpen, onClose }) => {
             </button>
 
             <div className="max-w-md mx-auto text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-400 text-slate-950 shadow-md mb-2">
-                <Lock className="w-7 h-7" />
+              <div className="inline-flex items-center justify-center mb-2">
+                <img
+                  src="/assets/aistudio/kashyap_classes_logo.png"
+                  alt="Kashyap Classes Logo"
+                  className="w-16 h-16 rounded-2xl object-contain bg-white p-1 border-2 border-amber-400 shadow-md mx-auto"
+                />
               </div>
               <div className="flex items-center justify-center gap-2">
                 <span className="bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded border border-amber-400/40 tracking-wider">
@@ -493,9 +499,11 @@ export const OwnerPanel: React.FC<OwnerPanelProps> = ({ isOpen, onClose }) => {
           {/* Top Navigation Bar (Compact) */}
           <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white px-3 sm:px-6 py-2.5 shrink-0 flex items-center justify-between gap-2 border-b border-blue-900/40">
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xs shadow-xs shrink-0">
-                KC
-              </span>
+              <img
+                src="/assets/aistudio/kashyap_classes_logo.png"
+                alt="KC Logo"
+                className="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-amber-400 shadow-xs shrink-0"
+              />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <h2 className="text-xs sm:text-base font-extrabold font-heading text-white tracking-tight truncate">
@@ -530,6 +538,17 @@ export const OwnerPanel: React.FC<OwnerPanelProps> = ({ isOpen, onClose }) => {
                 <Download className="w-3.5 h-3.5 text-blue-900" />
                 <span className="hidden sm:inline">Export CSV</span>
               </button>
+
+              <a
+                href={GOOGLE_DRIVE_NOTES_FOLDER}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open Kashyap Sir's Class 12 Notes Google Drive Folder"
+                className="p-1.5 sm:px-3 sm:py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+              >
+                <FolderOpen className="w-3.5 h-3.5 text-slate-950" />
+                <span className="hidden sm:inline">Drive Notes</span>
+              </a>
 
               <button
                 onClick={handleLogout}

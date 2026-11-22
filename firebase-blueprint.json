@@ -1,0 +1,291 @@
+{
+  "entities": {
+    "Note": {
+      "title": "Note",
+      "description": "Metadata for an individual physics chapter PDF note sold in Class 11, Class 12, or JEE sections.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique document identifier for the note.",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Display title of the chapter note PDF.",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed topic coverage and highlights of the note.",
+          "minLength": 2,
+          "maxLength": 2000
+        },
+        "section": {
+          "type": "string",
+          "description": "Target curriculum storefront section.",
+          "enum": [
+            "class-11-physics",
+            "class-12-physics",
+            "jee"
+          ]
+        },
+        "singlePriceInINR": {
+          "type": "number",
+          "description": "Individual chapter PDF price in Indian Rupees."
+        },
+        "bundlePriceInINR": {
+          "type": "number",
+          "description": "Effective discounted unit price when purchased as part of a bundle pack."
+        },
+        "pageCount": {
+          "type": "integer",
+          "description": "Number of pages inside the handwritten PDF."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the note was published."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "section",
+        "singlePriceInINR",
+        "bundlePriceInINR",
+        "pageCount",
+        "createdAt"
+      ]
+    },
+    "NotePrivateStorage": {
+      "title": "NotePrivateStorage",
+      "description": "Locked R2 object key metadata stored in notes/{noteId}/private/storage so buyers cannot access raw storage keys.",
+      "type": "object",
+      "properties": {
+        "r2FileKey": {
+          "type": "string",
+          "description": "Object key inside the private Cloudflare R2 bucket.",
+          "minLength": 3,
+          "maxLength": 512
+        },
+        "originalFileName": {
+          "type": "string",
+          "description": "Original uploaded PDF filename.",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "fileSizeBytes": {
+          "type": "integer",
+          "description": "Uploaded PDF byte length."
+        },
+        "contentType": {
+          "type": "string",
+          "description": "MIME type (application/pdf).",
+          "minLength": 5,
+          "maxLength": 100
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the R2 key was recorded."
+        }
+      },
+      "required": [
+        "r2FileKey",
+        "originalFileName",
+        "fileSizeBytes",
+        "contentType",
+        "updatedAt"
+      ]
+    },
+    "Bundle": {
+      "title": "Bundle",
+      "description": "Combo pack grouping multiple uploaded notes within a single curriculum section at a discounted price.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique document identifier for the bundle.",
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Display title of the bundle pack.",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "description": {
+          "type": "string",
+          "description": "Summary of what the bundle pack includes.",
+          "minLength": 2,
+          "maxLength": 2000
+        },
+        "section": {
+          "type": "string",
+          "description": "Target curriculum storefront section.",
+          "enum": [
+            "class-11-physics",
+            "class-12-physics",
+            "jee"
+          ]
+        },
+        "includedNoteIds": {
+          "type": "array",
+          "description": "List of note IDs unlocked when purchasing this bundle."
+        },
+        "bundlePriceInINR": {
+          "type": "number",
+          "description": "Discounted bundle pack price in Indian Rupees."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the bundle was created."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "section",
+        "includedNoteIds",
+        "bundlePriceInINR",
+        "createdAt"
+      ]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Server-verified Razorpay purchase record granting PDF access for one or more noteIds to a student.",
+      "type": "object",
+      "properties": {
+        "purchaseId": {
+          "type": "string",
+          "description": "Unique identifier for this verified purchase."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the student buyer."
+        },
+        "unlockedNoteIds": {
+          "type": "array",
+          "description": "All note IDs unlocked by this single or bundle order."
+        },
+        "section": {
+          "type": "string",
+          "description": "Storefront section associated with the purchased item.",
+          "enum": [
+            "class-11-physics",
+            "class-12-physics",
+            "jee"
+          ]
+        },
+        "purchaseType": {
+          "type": "string",
+          "description": "Whether the student bought a single note or a bundle pack.",
+          "enum": [
+            "single",
+            "bundle"
+          ]
+        },
+        "itemId": {
+          "type": "string",
+          "description": "ID of the purchased note or bundle."
+        },
+        "itemTitle": {
+          "type": "string",
+          "description": "Title of the purchased note or bundle."
+        },
+        "razorpayOrderId": {
+          "type": "string",
+          "description": "Razorpay Order ID."
+        },
+        "razorpayPaymentId": {
+          "type": "string",
+          "description": "Razorpay Payment ID."
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "Authoritative INR amount paid."
+        },
+        "purchasedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when payment verification succeeded."
+        }
+      },
+      "required": [
+        "purchaseId",
+        "userId",
+        "unlockedNoteIds",
+        "section",
+        "purchaseType",
+        "razorpayOrderId",
+        "razorpayPaymentId",
+        "amountPaid",
+        "purchasedAt"
+      ]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Trusted administrator access record keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the admin."
+        },
+        "email": {
+          "type": "string",
+          "description": "Verified email address of the admin."
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "admin"
+          ],
+          "description": "Administrative role."
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "role"
+      ]
+    }
+  },
+  "firestore": {
+    "/notes/{noteId}": {
+      "schema": {
+        "$ref": "#/entities/Note"
+      },
+      "description": "Public catalog of uploaded single chapter physics PDF notes."
+    },
+    "/notes/{noteId}/private/{docId}": {
+      "schema": {
+        "$ref": "#/entities/NotePrivateStorage"
+      },
+      "description": "Admin-only private subcollection storing raw Cloudflare R2 object keys (docId = storage)."
+    },
+    "/bundles/{bundleId}": {
+      "schema": {
+        "$ref": "#/entities/Bundle"
+      },
+      "description": "Public catalog of discounted section-specific note bundle packs."
+    },
+    "/purchases/{purchaseId}": {
+      "schema": {
+        "$ref": "#/entities/Purchase"
+      },
+      "description": "Server-verified student purchases; owner-only read and zero client writes."
+    },
+    "/admins/{userId}": {
+      "schema": {
+        "$ref": "#/entities/Admin"
+      },
+      "description": "Explicitly provisioned administrator UID allowlist."
+    }
+  }
+}

@@ -1,10 +1,14 @@
+export const GOOGLE_DRIVE_NOTES_FOLDER = 'https://drive.google.com/drive/folders/1Ix_VT5-Xgbg065gdgyHp3cOq781nwZfL';
+
 export interface Class12Note {
   id: string;
   chapterNumber: number;
   title: string;
+  uploadedFileName: string;
   unit: string;
   part: 'Part 1: Electromagnetism' | 'Part 2: Optics & Modern Physics';
   pdfPath: string;
+  driveUrl: string;
   pageCount: number;
   topicsCovered: string[];
   keyDerivations: string[];
@@ -16,10 +20,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-1-electric-charges-and-fields',
     chapterNumber: 1,
-    title: 'Electric Charges and Fields',
+    title: 'Ch. 1 Electric Charges and Field',
+    uploadedFileName: 'Ch. 1 Electric Charges and Field.pdf',
     unit: 'Unit 1: Electrostatics',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._1_Electric_Charges_and_Field_48da38a5.pdf',
+    driveUrl: 'https://drive.google.com/drive/folders/1Ix_VT5-Xgbg065gdgyHp3cOq781nwZfL',
     pageCount: 22,
     topicsCovered: [
       'Quantization, Conservation & Additivity of Electric Charges',
@@ -47,10 +53,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-2-electric-potential-and-capacitance',
     chapterNumber: 2,
-    title: 'Electric Potential and Capacitance',
+    title: 'Ch. 2 Electric Potential and Capacitance',
+    uploadedFileName: 'Ch. 2 Electric Potential and Capacitance.pdf',
     unit: 'Unit 1: Electrostatics',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._2_Electric_Potential_and_Capacitance_0869c6ac.pdf',
+    driveUrl: 'https://drive.google.com/file/d/14X-kLn1hm7xOXp2jbss6Bu66MDRmHllL/view?usp=drivesdk',
     pageCount: 26,
     topicsCovered: [
       'Potential Difference & Electric Potential due to Point Charge',
@@ -82,10 +90,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-3-current-electricity',
     chapterNumber: 3,
-    title: 'Current Electricity',
+    title: 'Ch. 3 Current and Electricity',
+    uploadedFileName: 'Ch. 3 Current and Electricity.pdf',
     unit: 'Unit 2: Current Electricity',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._3_Current_and_Electricity_22d6e9fd.pdf',
+    driveUrl: 'https://drive.google.com/file/d/14xscGG010eUWHh0FLC4KDPSt-7OR3Ej8/view?usp=drivesdk',
     pageCount: 29,
     topicsCovered: [
       'Electric Current, Charge Carriers & Instantaneous Current',
@@ -119,10 +129,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-4-moving-charges-and-magnetism',
     chapterNumber: 4,
-    title: 'Moving Charges and Magnetism',
+    title: 'Ch. 4 Magnetic Effect of Current',
+    uploadedFileName: 'Ch. 4 Magnetic Effect of Current.pdf',
     unit: 'Unit 3: Magnetic Effects of Current & Magnetism',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._4_Magnetic_Effect_of_Current_c91edabe.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1sBYdJu4uxU98do16bdFVQe-huEwYYLI9/view?usp=drivesdk',
     pageCount: 28,
     topicsCovered: [
       'Oersted’s Experiment & Right Hand Thumb Rule',
@@ -157,10 +169,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-5-magnetism-and-matter',
     chapterNumber: 5,
-    title: 'Magnetism and Matter',
+    title: 'Ch. 5 Magnetism',
+    uploadedFileName: 'Ch. 5 Magnetism.pdf',
     unit: 'Unit 3: Magnetic Effects of Current & Magnetism',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._5_Magnetism_37b20775.pdf',
+    driveUrl: 'https://drive.google.com/file/d/11oNjM_Op7toSVElNFFRCJVUncV3mrMxq/view?usp=drivesdk',
     pageCount: 12,
     topicsCovered: [
       'Natural & Artificial Magnets, Magnetic Dipoles & Properties',
@@ -192,10 +206,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-6-electromagnetic-induction',
     chapterNumber: 6,
-    title: 'Electromagnetic Induction',
+    title: 'Ch. 6 Electromagnetic Induction',
+    uploadedFileName: 'Chapter 6 Electromagnatic Induction-1.pdf',
     unit: 'Unit 4: Electromagnetic Induction & Alternating Currents',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Chapter_6_Electromagnatic_Induction-1_97cd4f5f.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1CAO3-z2HFmyT8lBgzbAKBiaZ6X5qqX0-/view?usp=drivesdk',
     pageCount: 10,
     topicsCovered: [
       'Magnetic Flux (Φ = B·A = BA cosθ)',
@@ -225,10 +241,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-7-alternating-current',
     chapterNumber: 7,
-    title: 'Alternating Current',
+    title: 'Ch. 7 Alternating Current',
+    uploadedFileName: 'Ch. 7 Alternating Current.pdf',
     unit: 'Unit 4: Electromagnetic Induction & Alternating Currents',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._7_Alternating_Current_14069c55.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1zrDX1VsR_YZI9eVchPfdG8I-uPY2_ObM/view?usp=drivesdk',
     pageCount: 23,
     topicsCovered: [
       'Sinusoidal AC Voltage & Current Representations',
@@ -263,10 +281,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-8-electromagnetic-waves',
     chapterNumber: 8,
-    title: 'Electromagnetic Waves',
+    title: 'Ch. 8 Electromagnetic Wave',
+    uploadedFileName: 'Ch. 8 Electromagnetic Wave.pdf',
     unit: 'Unit 5: Electromagnetic Waves',
     part: 'Part 1: Electromagnetism',
     pdfPath: '/assets/aistudio/Ch._8_Electromagnetic_Wave_12a6ac16.pdf',
+    driveUrl: 'https://drive.google.com/file/d/10HawxSRPB0DxVPiwTL35NSNNG_5LWxzX/view?usp=drivesdk',
     pageCount: 10,
     topicsCovered: [
       'Inconsistency of Ampere’s Circuital Law & Capacitor Discrepancy',
@@ -295,10 +315,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-9-ray-optics',
     chapterNumber: 9,
-    title: 'Ray Optics and Optical Instruments',
+    title: 'Ch. 9 Ray Optics',
+    uploadedFileName: 'Ch. 9 Ray Optics.pdf',
     unit: 'Unit 6: Optics',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._9_Ray_Optics_6bb8f623.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1qHFRIlxldYfde-DASCg9FFoeLf4oksNI/view?usp=drivesdk',
     pageCount: 34,
     topicsCovered: [
       'Laws of Reflection & Spherical Mirrors (Concave & Convex)',
@@ -335,10 +357,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-10-wave-optics',
     chapterNumber: 10,
-    title: 'Wave Optics',
+    title: 'Ch. 10 Wave Optics',
+    uploadedFileName: 'Ch. 10 Wave Optics.pdf',
     unit: 'Unit 6: Optics',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._10_Wave_Optics_1f600829.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1v407F08qalvC8OhKBJIIpXUAckeAgZHa/view?usp=drivesdk',
     pageCount: 17,
     topicsCovered: [
       'Wavefront Concept: Spherical, Cylindrical & Plane Wavefronts',
@@ -372,10 +396,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-11-dual-nature',
     chapterNumber: 11,
-    title: 'Dual Nature of Radiation and Matter',
+    title: 'Ch. 11 Dual Nature',
+    uploadedFileName: 'Ch. 11 Dual Nature.pdf',
     unit: 'Unit 7: Dual Nature of Radiation and Matter',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._11_Dual_Nature_d4fea2be.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1bOVGBzvXAUUiyIuUPvEA8nD82m1N4wuy/view?usp=drivesdk',
     pageCount: 16,
     topicsCovered: [
       'Max Planck Quantum Hypothesis, Photons & Electron Volt',
@@ -406,10 +432,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-12-atoms',
     chapterNumber: 12,
-    title: 'Atoms',
+    title: 'Ch. 12 Atoms',
+    uploadedFileName: 'Ch. 12 Atoms.pdf',
     unit: 'Unit 8: Atoms and Nuclei',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._12_Atoms_ceeec3f6.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1nKZMYERvC4GaCWrzMmvrQhWnFa2THGmL/view?usp=drivesdk',
     pageCount: 12,
     topicsCovered: [
       'Thomson’s Plum Pudding Model & Major Shortcomings',
@@ -440,10 +468,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-13-nuclei',
     chapterNumber: 13,
-    title: 'Nuclei',
+    title: 'Ch. 13 Nuclei',
+    uploadedFileName: 'Ch. 13 Nuclei.pdf',
     unit: 'Unit 8: Atoms and Nuclei',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._13_Nuclei_54ddcadc.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1N4We24MkMU0qW_fnCopCxSBppp3q6Lpp/view?usp=drivesdk',
     pageCount: 14,
     topicsCovered: [
       'Nucleon Composition: Protons, Neutrons, Atomic Number (Z), Mass Number (A)',
@@ -475,10 +505,12 @@ export const CLASS_12_NOTES_DATA: Class12Note[] = [
   {
     id: 'ch-14-semiconductor-devices',
     chapterNumber: 14,
-    title: 'Semiconductor Electronics: Materials, Devices and Simple Circuits',
+    title: 'Ch. 14 Semiconductor Devices',
+    uploadedFileName: 'Ch. 14 Semiconductor Devices.pdf',
     unit: 'Unit 9: Electronic Devices',
     part: 'Part 2: Optics & Modern Physics',
     pdfPath: '/assets/aistudio/Ch._14_Semiconductor_Devices_0730184c.pdf',
+    driveUrl: 'https://drive.google.com/file/d/1gpKqJ4rESE_ZAnvX1INfQSZfNlzEDV4t/view?usp=drivesdk',
     pageCount: 14,
     topicsCovered: [
       'Energy Band Theory: Valence Band, Conduction Band & Forbidden Energy Gap (E_g)',
